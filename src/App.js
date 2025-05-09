@@ -3,7 +3,7 @@ import ListaTarefas from './components/ListaTarefas';
 const App = () => {
   
   return (
-    <div className="App">
+    <div className="container mt-4">
       <header className="App-header">
         <h1>Lista de Tarefas</h1>
       </header>
