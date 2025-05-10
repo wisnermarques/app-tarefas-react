@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../api/api';
 import CadastroTarefa from './CadastroTarefa';
 
@@ -8,7 +8,8 @@ const ListaTarefas = () => {
 
     const carregarTarefas = () => {
         api.get('/tarefas/').then(res => {
-            setTarefas(res.data.results || res.data);
+            console.log(res)
+            setTarefas(res.data);
         });
     };
 
@@ -26,7 +27,7 @@ const ListaTarefas = () => {
     };
 
     return (
-        <div className="container mt-4">
+        <div>
             <button
                 className="btn btn-success mb-3"
                 onClick={() => setMostrarFormulario(prev => !prev)}
@@ -57,14 +58,14 @@ const ListaTarefas = () => {
                             <td>{tarefa.status}</td>
                             <td>
                                 <button type="button" className="btn">
-                                    <i className="bi bi-pencil-square"></i>
+                                    <i className="bi bi-pencil-square text-primary"></i>
                                 </button>
                                 <button
                                     type="button"
                                     className="btn"
                                     onClick={() => handleDelete(tarefa.id)}
                                 >
-                                    <i className="bi bi-trash"></i>
+                                    <i className="bi bi-trash text-danger"></i>
                                 </button>
                             </td>
                         </tr>

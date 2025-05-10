@@ -2,27 +2,36 @@ import React, { useState } from 'react';
 import api from '../api/api';
 
 const CadastroTarefa = ({ onTarefaCadastrada }) => {
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp);
+        return date.toISOString().split('T')[0]; // YYYY-MM-DD
+    };
+
     const [nome, setNome] = useState('');
     const [descricao, setDescricao] = useState('');
     const [status, setStatus] = useState('Pendente');
+    const [dataInicio, setDataInicio] = useState(formatDate(Date.now()));
+    const [dataFim, setDataFim] = useState(formatDate(Date.now()));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const novaTarefa = { nome, descricao, status };
-            await api.post('/tarefas/', novaTarefa, {
+            const novaTarefa = { nome, descricao, status, dataInicio, dataFim };
+            const response = await api.post('/tarefas/', novaTarefa, {
                 headers: { 'Content-Type': 'application/json' }
-              });
+            });
 
             if (onTarefaCadastrada) {
-                // onTarefaCadastrada(response.data);
+                onTarefaCadastrada(response.data);
             }
 
             // Limpar formulário após envio
             setNome('');
             setDescricao('');
             setStatus('Pendente');
+            setDataInicio(formatDate(Date.now()));
+            setDataFim(formatDate(Date.now()));
         } catch (error) {
             console.error('Erro ao cadastrar tarefa:', error);
         }
@@ -64,6 +73,26 @@ const CadastroTarefa = ({ onTarefaCadastrada }) => {
                         <option value="Em andamento">Em andamento</option>
                         <option value="Concluída">Concluída</option>
                     </select>
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Data início</label>
+                    <input
+                        type="date"
+                        className="form-control"
+                        value={dataInicio}
+                        onChange={e => setDataInicio(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Data fim</label>
+                    <input
+                        type="date"
+                        className="form-control"
+                        value={dataFim}
+                        onChange={e => setDataFim(e.target.value)}
+                        required
+                    />
                 </div>
                 <button type="submit" className="btn btn-primary">Cadastrar</button>
             </form>
