@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import api from '../api/api';
+import supabase from '../api/supabase';
+
 
 const CadastroTarefa = ({ onTarefaCadastrada }) => {
     const formatDate = (timestamp) => {
@@ -17,13 +18,21 @@ const CadastroTarefa = ({ onTarefaCadastrada }) => {
         e.preventDefault();
 
         try {
-            const novaTarefa = { nome, descricao, status, dataInicio, dataFim };
-            const response = await api.post('/tarefas/', novaTarefa, {
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const novaTarefa = {
+                nome,
+                descricao,
+                status,
+                data_inicio: dataInicio, // Atenção ao nome do campo! Ajuste conforme seu banco.
+                data_fim: dataFim        // Atenção ao nome do campo! Ajuste conforme seu banco.
+            };
+            const { data, error } = await supabase
+                .from('tarefas')
+                .insert([novaTarefa])
+                .select(); // obtém o registro inserido
+            if (error) throw error;
 
-            if (onTarefaCadastrada) {
-                onTarefaCadastrada(response.data);
+            if (onTarefaCadastrada && data) {
+                onTarefaCadastrada(data[0]);
             }
 
             // Limpar formulário após envio
@@ -33,7 +42,7 @@ const CadastroTarefa = ({ onTarefaCadastrada }) => {
             setDataInicio(formatDate(Date.now()));
             setDataFim(formatDate(Date.now()));
         } catch (error) {
-            console.error('Erro ao cadastrar tarefa:', error);
+            console.error('Erro ao cadastrar tarefa:', error.message || error);
         }
     };
 
