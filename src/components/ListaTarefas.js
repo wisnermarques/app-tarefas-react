@@ -6,7 +6,7 @@ const ListaTarefas = () => {
     const [tarefas, setTarefas] = useState([]);
     const [mostrarFormulario, setMostrarFormulario] = useState(false);
     const [tarefaEditando, setTarefaEditando] = useState(null);
-    const [tarefaAtualizada, setTarefaAtualizada] = useState({ nome: '', descricao: '', status: '', dataInicio: '', dataFim: '' });
+    const [tarefaAtualizada, setTarefaAtualizada] = useState({ nome: '', descricao: '', status: '', data_inicio: '', data_fim: '' });
 
     const carregarTarefas = async () => {
         const { data, error } = await supabase
@@ -48,21 +48,24 @@ const ListaTarefas = () => {
             nome: tarefa.nome,
             descricao: tarefa.descricao,
             status: tarefa.status,
-            data_inicio: tarefa.dataInicio,
-            data_fim: tarefa.dataFim,
+            data_inicio: tarefa.data_inicio ? tarefa.data_inicio.split('T')[0] : '', // para <input type="date">
+            data_fim: tarefa.data_fim ? tarefa.data_fim.split('T')[0] : '',
         });
     };
 
-    const handleSave = async (id, tarefaAtualizada) => {
+    const handleSave = async (id) => {
+        console.log(tarefaAtualizada);
+        if (!tarefaAtualizada) {
+            console.error('Nenhum dado para atualizar.');
+            return;
+        }
         try {
             const { error } = await supabase
-                .from('tarefas')           // nome da tabela no Supabase
-                .update(tarefaAtualizada)  // objeto com os campos a atualizar
-                .eq('id', id);             // identifica a tarefa pelo id
+                .from('tarefas')
+                .update(tarefaAtualizada) // Não pode ser objeto vazio e precisa ter os nomes certinhos do banco!
+                .eq('id', id);
 
-            if (error) {
-                throw error;
-            }
+            if (error) throw error;
 
             setTarefaEditando(null);
             carregarTarefas();
@@ -119,15 +122,15 @@ const ListaTarefas = () => {
                                     <td>
                                         <input
                                             type="date"
-                                            value={tarefaAtualizada.dataInicio}
-                                            onChange={(e) => setTarefaAtualizada({ ...tarefaAtualizada, dataInicio: e.target.value })}
+                                            value={tarefaAtualizada.data_inicio}
+                                            onChange={(e) => setTarefaAtualizada({ ...tarefaAtualizada, data_inicio: e.target.value })}
                                         />
                                     </td>
                                     <td>
                                         <input
                                             type="date"
-                                            value={tarefaAtualizada.dataFim}
-                                            onChange={(e) => setTarefaAtualizada({ ...tarefaAtualizada, dataFim: e.target.value })}
+                                            value={tarefaAtualizada.data_fim}
+                                            onChange={(e) => setTarefaAtualizada({ ...tarefaAtualizada, data_fim: e.target.value })}
                                         />
                                     </td>
                                     <td>
@@ -153,8 +156,8 @@ const ListaTarefas = () => {
                                 <>
                                     <td>{tarefa.nome}</td>
                                     <td>{tarefa.descricao}</td>
-                                    <td>{new Date(tarefa.data_inicio).toLocaleDateString('pt-BR')}</td>
-                                    <td>{new Date(tarefa.data_fim).toLocaleDateString('pt-BR')}</td>
+                                    <td>{tarefa.data_inicio ? tarefa.data_inicio.split('T')[0].split('-').reverse().join('/') : ''}</td>
+                                    <td>{tarefa.data_fim ? tarefa.data_fim.split('T')[0].split('-').reverse().join('/') : ''}</td>
                                     <td>{tarefa.status}</td>
                                     <td>
                                         <button type="button" className="btn" onClick={() => handleEditClick(tarefa)}>
